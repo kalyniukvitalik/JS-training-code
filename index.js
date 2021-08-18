@@ -1240,6 +1240,325 @@ let calculateMiles = function (distance) {
   let miles = Math.floor(distance * percent);
   return miles;
 };
-
 console.log('За політ у Будапешт ' + calculateMiles(4125) + ' миль');
 console.log('За політ у Відень ' + calculateMiles(11000) + ' миль');
+////////////////////////////////////////////////////////////////////////////////////
+
+// Зарплати до зарплати. Технічне завдання
+/*
+Мені потрібна програма, яка від «брудної» зарплати (зарплата до вирахування податків) вираховуватиме приблизну «чисту» зарплату (яка видається 'на руки').
+Оформи програму у вигляді функції calculateSalary c одним параметром - величиною брудної зарплати. Функція повинна повертати чисту зарплату.
+Великої точністі мені не потрібно, просто вважаємо, що 35% величини брудної зарплати становлять податки, а якщо брудна зарплата більше або дорівнює 100 тисячам, то податки складають вже 45%.
+*/
+let calculateSalary = function (dirtySalary) {
+  let percent = 0.35;
+  if (dirtySalary >= 100000) {
+   percent = 0.45; 
+  }
+  let clearSalary = dirtySalary - (dirtySalary * percent); // таким чином вираховуємо залишковий відсоток від повної суми
+  return clearSalary;
+};
+calculateSalary();
+////////////////////////////////////////////////////////////////////////////////////
+
+// Записуємо результат виконання функці\ у перемінну, щоб мати можливість \\ повторного використання
+let calculateMiles = function (distance, isBusinessClass) {
+  if (isBusinessClass) {
+    return distance * 0.22;
+  } else {
+    return distance * 0.18;
+  }
+};
+
+let milesEconom = calculateMiles (3000, false); 
+let milesBusiness = calculateMiles (3000, true);
+
+console.log ('Економ-класом накопичили' + milesEconom + 'миль');
+console.log ('Бізнес-класом накопичили' + milesBusiness + 'миль');
+
+// Рефакторинг коду
+// У разі вибору бізнес-клас, програма виконає код з гілки if і вийде з функції. В цьому випадку неважливо, який код йде в calculateMiles далі. І навпаки, якщо обраний економ, програма в будь-якому разі не зайде всередину першої гілки умови і просто виконає код, який йде після неї. Тому гілка else тут необов'язкова, її можна опустити.
+let calculateMiles = function (distance, isBusinessClass) {
+  if (isBusinessClass) {
+    return distance * 0.22;
+  } 
+  return distance * 0.18;
+};
+let milesEconom = calculateMiles (3000, false); 
+let milesBusiness = calculateMiles (3000, true);
+console.log ('Економ-класом накопичили' + milesEconom + 'миль');
+console.log ('Бізнес-класом накопичили' + milesBusiness + 'миль');
+
+//Ми можемо переформулювати задачу так, що базовий відсоток дорівнює 18, а якщо клас перельоту бізнес, то відсоток збільшується на 4. Потім в кінці функції один раз вважаємо і повертаємо милі
+// Другий крок рефакторинга такий: створюємо перемінну percent, яка буде змінюватися в залежності від умови, а повертати з функції будемо результат виразу distance * percent.
+let calculateMiles = function (distance, isBusinessClass) {
+  let percent = 0.18;
+  if (isBusinessClass) {
+    percent + = 0.04;
+  }
+  return distance * percent;
+};
+let milesEconom = calculateMiles (3000, false);
+let milesBusiness = calculateMiles (3000, true);
+console.log ('Економ-класом Кексофлота накопичити' + milesEconom + 'миль');
+console.log ('Бізнес-класом Кексофлота накопичити' + milesBusiness + 'миль');
+
+// Добавляння зміни відсотка у залежності від ще однієї умови
+let calculateMiles = function (distance, isBusinessClass) {
+  let percent = 0.18;
+  if (isBusinessClass) {
+    percent + = 0.04;
+  }
+  if (distance> 3500) {
+    percent + = 0.15; // ще одна умова, яка збільшує знижку
+  }
+  return distance * percent;
+};
+
+let calculateFlights = function (distance, isBusinessClass, milesTarget) {
+  let miles = calculateMiles (distance, isBusinessClass);
+  let flights = Math.ceil (milesTarget / miles);
+  return flights;
+};
+let flightsVariantFirst = calculateFlights (3118, true, 15000); // для більшої універсальності і взаємозамінності результати вичеслень зберігаємо у перемінні  
+let flightsVariantSecond = calculateFlights (3617, false, 15000);
+
+console.log ('Необхідна кількість польотів в бізнес-класі до Валенсії:' + flightsVariantFirst);
+console.log ('Необхідна кількість польотів в економі до Лісабона:' + flightsVariantSecond);
+
+// Повноцінна програма.
+
+// Функція підрахунку миль
+let calculateMiles = function (distance, isBusinessClass) {
+  let percent = 0.18;
+  if (isBusinessClass) {
+    percent + = 0.04;
+  }
+  if (distance> 3500) {
+    percent + = 0.15;
+  }
+  return distance * percent;
+};
+
+// Функція, яка підрахоує кількість польотів
+let calculateFlights = function (distance, isBusinessClass, milesTarget) {
+  let miles = calculateMiles (distance, isBusinessClass);
+  let flights = Math.ceil (milesTarget / miles);
+  return flights;
+};
+
+// Масив миль, які потрібно накопичити
+// щоб ми кожен раз не повторяли дії із новими даними по відстанях,ми їх записуємо у масив і перебираємо
+let targets = [3000, 7500, 15000];
+
+// Цикл, за допомогою якого ми визначаємо, якими перельотами милі накопичаться швидше
+for (let i = 0; i <targets.length; i ++) {
+  let flightsVariantFirst = calculateFlights (3118, true, targets [i]); // третім аргументом вказуємо поточний індекс масива
+  let flightsVariantSecond = calculateFlights (3617, false, targets [i]);
+
+  console.log ( 'Необхідна кількість польотів в бізнес-класі до Валенсії:' + flightsVariantFirst);
+  console.log ( 'Необхідна кількість польотів в економі до Лісабона:' + flightsVariantSecond);
+
+  if (flightsVariantFirst> flightsVariantSecond) {
+  console.log ( 'Швидше накопичити польотами в економі до Лісабона! Кількість польотів:' + flightsVariantSecond);
+    }  else {
+      console.log ( 'Швидше накопичити польотами в бізнесі до Валенсії! Кількість польотів:' + flightsVariantFirst);
+    }
+  }
+  ////////////////////////////////////////////////////////////////////////////////////
+
+// Скільки коштує робота фрілансера? Технічне завдання
+/*
+Напиши програму для розрахунку вартості роботи фрілансера над проектом.
+Дай назву функції getPrice. У неї має бути два параметра:
+- час (в годинах), який потрібно витратити на проект;
+- логічне значення, яке вказує на терміновість проекту - true для термінового замовлення і false для звичайного.
+Назви параметрів можу бути будь-якими.
+Для кожного проекту є фіксована ставка - 300 гривень за годину. Розрахунок вартості проектів виглядає так: час * ставка на годину.
+Є кілька нюансів. Якщо проект терміновий, то витрачені години зменшуються в два рази, а ставка за годину підвищується в 2.5 раз.
+А якщо час проекту більше 150 годин, ставка на годину зменшується на 30 гривень.
+В першу чергу перевіряй терміновість. Функція повинна повертати вартість проекту.
+*/
+let getPrice = function (hourForProject, isUrgent) {
+  let ratePerHour = 1500;
+  if (isUrgent) {
+    hourForProject /= 2;
+    ratePerHour *= 2.5;
+  } if (hourForProject > 150) {
+    ratePerHour -= 250; 
+  }
+  return hourForProject  * ratePerHour;
+};
+
+getPrice();
+  ////////////////////////////////////////////////////////////////////////////////////
+
+
+// Переписуємо програму із об'єктами. 
+// Приклад
+let diceNumber = 2;
+let firstCatName = 'Кекс';
+let firstCatPoints = 0;
+let secondCatName = 'Рудольф';
+let secondCatPoints = 0;
+
+let runGame = function (quantity, firstPlayerName, firstPlayerPoints, secondPlayerName, secondPlayerPoints) {
+  firstPlayerPoints += keks.throwDice(quantity, quantity * 6);
+  secondPlayerPoints += keks.throwDice(quantity, quantity * 6);
+  console.log(firstPlayerName + ' выбросил ' + firstPlayerPoints);
+  console.log(secondPlayerName + ' выбросил ' + secondPlayerPoints);
+};
+runGame(diceNumber, firstCatName, firstCatPoints, secondCatName, secondCatPoints);
+// і тепер переписаний варіант із об'єктами
+let diceNumber = 2;
+let firstCat = {
+  name: 'Кекс',
+  points: 0
+};
+let secondCat = {
+  name: 'Рудольф',
+  points: 0
+};
+
+let runGame = function (quantity, firstPlayer, secondPlayer) {
+  firstPlayer.points += keks.throwDice(quantity, quantity * 6);
+  secondPlayer.points += keks.throwDice(quantity, quantity * 6);
+  console.log(firstPlayer.name + ' выбросил ' + firstPlayer.points);
+  console.log(secondPlayer.name + ' выбросил ' + secondPlayer.points);
+};
+runGame(diceNumber, firstCat, secondCat);
+////////////////////////////////////////////////////////////////////////////////////
+
+// Кості.Гра
+let gameRuleset = {
+  diceNumber: 1,
+  maxAttempts: 1
+};
+
+let firstCat = {
+  name: 'Кекс',
+  points: 0
+};
+
+let secondCat = {
+  name: 'Рудольф',
+  points: 0
+};
+
+let thirdCat = {
+  name: 'Роккі',
+  points: 0
+};
+
+let cats = [firstCat, secondCat, thirdCat];
+
+let runGame = function (ruleset, players) {
+  for (let currentAttempt = 1; currentAttempt <= ruleset.maxAttempts; currentAttempt ++) {
+    for (let i = 0; i <players.length; i ++) {
+      let throwResult = keks.throwDice (ruleset.diceNumber, ruleset.diceNumber * 6);
+      players [i] .points + = throwResult;
+      console.log (players [i] .name + 'викинув' + players [i] .points);
+    }
+  }
+  return players;
+};
+
+let getWinners = function (players) {
+  let winners = [];
+  let max = players [0];
+
+  for (let i = 0; i <players.length; i ++) {
+    let currentPlayer = players [i];
+    if (currentPlayer.points> max.points) {
+      max = currentPlayer;
+      winners = [max];
+    } Else {
+      if (currentPlayer.points === max.points) {
+        winners.push (currentPlayer);
+      }
+    }
+  }
+  return winners;
+};
+
+let printWinners = function (players, winners) {
+  if (players.length === winners.length) {
+    console.log ( 'Все коти як на підбір!');
+    return;
+  }
+  let message = 'Переміг';
+  
+  if (winners.length> 1) {
+    message = 'Перемогли';
+    }
+  for (let i = 0; i <winners.length; i ++) {
+    if (i> = 1) {
+      message + = ',';
+      }
+    message + = winners [i] .name;
+  }
+  message + = 'з кількістю очок:' + winners [0] .points;
+  console.log (message);
+};
+
+cats = runGame (gameRuleset, cats);
+let tops = getWinners (cats);
+printWinners (cats, tops);
+////////////////////////////////////////////////////////////////////////////////////
+
+// Золотий м'яч.  Тезнічне завдання
+/*
+Мені потрібна програма, яка підрахує корисність і результативність гравців на основі їх статистики. Оформи код у вигляді функції getStatistics з одним параметром - масивом гравців.
+Кожен футболіст в цьому масиві описується об'єктом з трьома полями: ім'я (властивість name), забиті голи (властивість goals) і гольові паси (властивість passes).
+Функція повинна повертати цей же масив, в якому кожному гравцеві додані ще два поля: коефіцієнт корисності по Кексу® (властивість coefficient) і результативність (властивість percent)
+Коефіцієнт корисності вважається так: множимо голи гравця на 2 (тому що я вважаю, що голи найважливіше) і додаємо до цього значення все гольові паси футболіста.
+Результативність (відсоток забитих м'ячів футболіста від результату всієї команди) вважаємо так: знаходимо суму голів всіх гравців і з'ясовуємо, скільки відсотків від цього числа забив кожен футболіст. Округляй значення за допомогою Math.round.
+*/
+
+let firstPlayer = {
+  name: 'Коталдо',
+  goals: 14,
+  passes: 5,
+};
+
+let secondPlayer = {
+  name: 'Де Коте',
+  goals: 3,
+  passes: 18,
+};
+
+let thirdPlayer = {
+  name: 'Котцціні',
+  goals: 9,
+  passes: 6,
+};
+
+let fourthPlayer = {
+  name: 'Котарченко',
+  goals: 13,
+  passes: 14,
+};
+
+let fifthPlayer = {
+  name: 'Котовскіс',
+  goals: 7,
+  passes: 16,
+};
+
+let footballers = [firstPlayer, secondPlayer, thirdPlayer, fourthPlayer, fifthPlayer];
+
+let getStatistics = function (players) {
+  let sumgoals = 0;
+  
+  for (let i = 0; i <players.length; i ++) {
+    sumgoals + = players [i] .goals;
+    let coefficient = players [i] .goals * 2 + players [i] .passes;
+    players [i] .coefficient = coefficient;
+    }
+  for (var i = 0; i <players.length; i ++) {
+    let percent = Math.round (players [i] .goals * 100 / sumgoals);
+    players [i] .percent = percent;
+    }
+  return players;
+};
+////////////////////////////////////////////////////////////////////////////////////
